@@ -1,0 +1,100 @@
+import pandas as pd
+
+train_data = pd.read_csv('train.csv')
+test_data = pd.read_csv('test.csv')
+
+train_data.head()
+
+train_data.info()
+
+train_data.describe()
+
+train_data.isnull().sum()
+
+test_data.isnull().sum()
+
+train_data.columns
+
+survival_by_sex = train_data.groupby('Sex')['Survived'].mean()
+
+print(survival_by_sex)
+
+import matplotlib.pyplot as plt
+
+plt.bar(survival_by_sex.index, survival_by_sex.values)
+plt.title('Survival Rate by Sex')
+plt.xlabel('Sex')
+plt.ylabel('Survival Rate')
+plt.show()
+
+train_data['Age'].fillna(train_data['Age'].median(), inplace=True)
+
+train_data['Embarked'].fillna(train_data['Embarked'].mode(), inplace=True)
+
+train_data['Embarked'].value_counts()
+
+train_data.drop(columns=['Cabin'], inplace=True)
+
+train_data.columns
+
+train_data = pd.get_dummies(train_data, columns=['Sex', 'Embarked'])
+
+
+train_data.columns
+
+train_data.drop(columns=['PassengerId', 'Name', 'Ticket'], inplace=True)
+
+print(train_data.head())
+
+import seaborn as sns
+
+sns.countplot(x='Survived', hue='Sex_male', data=train_data)
+plt.title('Survival Count by Sex')
+plt.xlabel('Survived')
+plt.ylabel('Count')
+plt.show()
+
+sns.countplot(x='Survived', hue='Pclass', data=train_data)
+plt.title('Survival Count by Passenger Class')
+plt.xlabel('Survived')
+plt.ylabel('Count')
+plt.show()
+
+
+
+sns.histplot(train_data['Age'], kde=True)
+plt.title('Age Distribution of Passengers')
+plt.xlabel('Age')
+plt.ylabel('Count')
+plt.show()
+
+train_data['FamilySize'] = train_data['SibSp'] + train_data['Parch'] + 1
+
+train_data.head()
+
+train_data['IsAlone'] = (train_data['FamilySize'] == 1).astype(int)
+
+train_data.drop(columns=['SibSp', 'Parch',], inplace=True)
+
+train_data.columns
+
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+X = train_data.drop(columns=['Survived'])
+y = train_data['Survived']
+
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+
+model = LogisticRegression()
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+
+accuracy = accuracy_score(y_test, y_pred)
+
+print( accuracy)
